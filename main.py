@@ -3,10 +3,13 @@ from dateutil.relativedelta import *
 import numpy as np
 import pandas as pd
 import time
+import io
 import random
+import nsepy.urls as sags
 from nsetools import *
 import matplotlib.pyplot as plt
 from datetime import date
+from constants import constant
 
 class Main():
     def __init__(self):
@@ -18,11 +21,16 @@ class Main():
         to_date = date(2021,10,1)
         # index_list = ["NIFTY200 MOMENTUM 30","NIFTY200 QUALTY30", "NIFTY100 LOWVOL30", "NIFTY ALPHA 50",
         #               "NIFTY50 VALUE 20"]
-        index_list = ["NIFTY"]
+        # index_list = constant.nse_company_list
+        # for ls in index_list:
+        #     data = get_history(symbol=ls, start=from_date, end=to_date)
+        #     print(ls)
+        #     data.to_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\equity\daily\\"+ls+".csv")
+        index_list = ["NIFTY50 EQL WGT"]
         for ls in index_list:
             data = get_history(symbol=ls, start=from_date, end=to_date, index=True)
-            print(data.to_string())
-            data.to_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\"+ls+".csv")
+            print(ls)
+            data.to_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\" + ls + ".csv")
         # data = get_history(symbol=index_list[1], start=from_date, end=to_date, index=True)
         # print(data.to_string())
         # data.to_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\"+index_list[1]+".csv")
@@ -166,5 +174,5 @@ class Main():
 
 if __name__ == "__main__":
     main_obj = Main()
-    main_obj.run_hist_daily_option_stock()
+    main_obj.run_hist_daily()
     exit()

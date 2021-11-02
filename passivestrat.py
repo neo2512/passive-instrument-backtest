@@ -116,6 +116,7 @@ class PassiveStrat():
         lowvol_df = pd.read_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\NIFTY100 LOWVOL30.csv")
         momentum_df = pd.read_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\NIFTY200 MOMENTUM 30.csv")
         quality_df = pd.read_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\NIFTY200 QUALTY30.csv")
+        nifty_eq_wt_df = pd.read_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\NIFTY50 EQL WGT.csv")
         nifty_df = pd.read_csv("D:\Mechanical Trading\SinTech-get-nse-data\data\index\\NIFTY.csv")
 
         alpha_df["nClose"] = alpha_df["Close"]*0.5 + lowvol_df["Close"]*0.5
@@ -144,6 +145,12 @@ class PassiveStrat():
         nifty_df["Year"] = nifty_df["Date"].dt.year
         nifty_df["Month"] = nifty_df["Date"].dt.month
         nifty_df = nifty_df.groupby(["Year", "Month"]).tail(1)
+
+
+        nifty_eq_wt_df["Date"] = pd.to_datetime(nifty_eq_wt_df["Date"])
+        nifty_eq_wt_df["Year"] = nifty_eq_wt_df["Date"].dt.year
+        nifty_eq_wt_df["Month"] = nifty_eq_wt_df["Date"].dt.month
+        nifty_eq_wt_df = nifty_eq_wt_df.groupby(["Year", "Month"]).tail(1)
         # print(alpha_df.to_string())
         # print(len(alpha_df))
         # p = alpha_df["nClose"][0]
@@ -158,18 +165,19 @@ class PassiveStrat():
         alpha_df["momClose"] = momentum_df["Close"].pct_change().dropna()
         alpha_df["valClose"] = value_df["Close"].pct_change().dropna()
         alpha_df["nifClose"] = nifty_df["Close"].pct_change().dropna()
+        alpha_df["nifEqWtClose"] = nifty_eq_wt_df["Close"].pct_change().dropna()
 
         # print(df.dtypes)
         # print(df.to_string())
         #weightage of different indexes
-        alpha_w = 0.4
+        alpha_w = 0.3
         value_w = 0.1
-        momentum_w = 0.1
-        quality_w = 0.4
+        momentum_w = 0.5
+        quality_w = 0.1
         alpha_df["fClose"] = alpha_df["alClose"]*alpha_w + alpha_df["momClose"]*momentum_w +\
                               alpha_df["qualClose"]*quality_w + alpha_df["valClose"]*value_w
 
-        pass_df = alpha_df[["Date","valClose", "qualClose", "alClose", "momClose", "nifClose","fClose"]]
+        pass_df = alpha_df[["Date","valClose", "qualClose", "alClose", "momClose", "nifClose", "nifEqWtClose", "fClose"]]
         pass_df = pass_df.set_index("Date")
         print(pass_df.head())
         # ret_index = (pass_df + 1).cumprod()
@@ -190,14 +198,14 @@ class PassiveStrat():
         print(cagr_ret.tail(1))
         (pass_df + 1).cumprod().plot()
         plt.legend(["Nifty Value Index", "NIFTY Quality Index", "NIFTY ALpha Low Volatility Index",
-                    "NIfty Momentum Index", "NIFTY 50", "SinTech Passive Strat"])
+                    "NIfty Momentum Index", "NIFTY 50", "NIFTY50 EQ WT", "SinTech Passive Strat"])
         plt.show()
 
         print((pass_df + 1).cumprod()[-1:])
         max_drawdowns = pass_df.apply(max_drawdown, axis=0)
         print(max_drawdowns)
         plt.legend(["Nifty Value Index", "NIFTY Quality Index", "NIFTY ALpha Low Volatility Index",
-                    "NIfty Momentum Index", "NIFTY 50", "SinTech Passive Strat"])
+                    "NIfty Momentum Index", "NIFTY 50", "NIFTY50 EQ WT", "SinTech Passive Strat"])
         max_drawdowns.plot.bar()
 
         plt.show()
